@@ -4,11 +4,10 @@ from core.config import settings
 from sqlmodel import SQLModel, Session, create_engine
 
 #importing models so engine SQLModel knows to map them
-from . import models
+from .models import Extraction, ExtractionDetail
 
 engine = create_engine(
     settings.DATABASE_URL,
-    echo=True,
     connect_args={"check_same_thread": False} 
 )
 
