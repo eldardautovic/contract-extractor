@@ -1,94 +1,126 @@
 # Contract extractor
 
-## Setup instructions: 
+## Setup Instructions
 
-1. **Clone the repository**
+This project is fully dockerized. You do not need to install Python or manage virtual environments.
+
+## 1. Clone the repository
 
 ```bash
 git clone <YOUR_REPO_URL>
 cd contract-extractor
 ```
 
-2. **Create a virtual environment**
+---
 
-```bash
-python3 -m venv .venv
-```
+## 2. Create the `.env` file
 
-Activate the environment:
-
-* macOS / Linux:
-
-```bash
-source .venv/bin/activate
-```
-
-* Windows (CMD):
-
-```cmd
-.venv\Scripts\activate
-```
-
-* Windows (PowerShell):
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-3. **Install dependencies**
-
-```bash
-pip install -r requirements.txt
-```
-
-4. **Set environment variables**
-
-Create a `.env` file in the root:
+In the project root, create a `.env` file:
 
 ```
-DATABASE_URL=sqlite:///./database.db
+DATABASE_URL=sqlite:///./db/database.db
 OPENAI_API_KEY=your_openai_api_key
 ```
 
-5. **Run the server**
+The SQLite database file is stored in the `db/` directory and is persisted outside the container.
+
+---
+
+## 3. Build and run the application
 
 ```bash
-fastapi dev
+docker compose up --build
 ```
 
-Server runs at:
+Once running, the API is available at:
 
 ```
-http://127.0.0.1:8000
+http://localhost:8000
 ```
 
-7. **Access API docs** *(optional)*
+Swagger UI documentation:
 
-* Swagger UI: `http://127.0.0.1:8000/docs`
-* ReDoc: `http://127.0.0.1:8000/redoc`
+```
+http://localhost:8000/docs
+```
+
+---
+
+## 4. Stop the application
+
+```bash
+docker compose down
+```
+
+---
+
+## 5. Database persistence (SQLite)
+
+The `docker-compose.yml` mounts the local `db/` folder into the container:
+
+```yaml
+volumes:
+  - ./db:/app/db
+```
+
+This ensures that database changes are preserved even when the container stops or is rebuilt.
+
+---
+
+## 6. Rebuild after code changes
+
+Rebuild and restart:
+
+```bash
+docker compose up --build
+```
+
+Start without rebuilding:
+
+```bash
+docker compose up
+```
 
 --- 
 
-This is my first project ever written with Python, FastAPI and LLM integration. Please keep that in mind.
+This is my first project built with Python, FastAPI, and LLM integration, I write primarily Javascript and C#. Please keep that in mind.
 
-Flow diagram:
-<img width="1600" height="290" alt="image" src="https://github.com/user-attachments/assets/0bbf5a59-633a-40d1-a596-c034a3d3d356" />
+## Architecture Overview
 
-This API has three endpoints: 
+Flow diagram: <img width="1600" height="290" alt="image" src="https://github.com/user-attachments/assets/0bbf5a59-633a-40d1-a596-c034a3d3d356" />
 
-POST /api/extract
-GET /api/extractions/{document_id}
-GET /api/extractions
+This API exposes three endpoints:
 
-This API leverages the power of Open AI GPT-4.1 Mini model.
+* `POST /api/extract`
+* `GET /api/extractions/{document_id}`
+* `GET /api/extractions`
 
-## What would I change?
-- I would definelely use migrations for the DB side of things as it is a better way to handle database changes. 
-- I would use chunks to upload PDF to LLM and would definetely use RAG instead of a public LLM API due to rate limiting and performance issues.
-- I would pay attention more to validation
+The service uses the OpenAI GPT-4.1 Mini model to perform contract clause extraction.
 
+---
 
-## How I used AI ?
-AI helped me to start as I didn't know how to start or structure this project. I started with prompting it how would one go about extracting some data from a PDF file, and it pointed me in the direction of transforming the PDF text to plain text first.
-After it has been converted it should be sent to our AI of choice. That put me to thinking, what can I use to get quickest results. Chat GPT suggested I should try with using a public LLM API, but it also suggested that it would be smarter to use RAG.
-Through the whole proccess of writing the code for this API i used it as my "copilot" to get things done faster. For example it pointed me to the project structure, how to use dependency injection, and a lot of other things.
+## What Would I Improve?
+
+If I were to iterate on this project further, I would introduce several improvements:
+
+* Implement proper database migrations to manage schema changes more reliably.
+* Split large PDFs into chunks before sending them to the LLM, and ideally implement a RAG pipeline to avoid rate limits and improve performance and accuracy.
+* Improve request validation and error handling.
+
+---
+
+## How I Used AI During Development
+
+AI played a significant role in helping me structure and build this project from the ground up. Since I was unfamiliar with the overall approach, I began by asking how to extract meaningful data from a PDF file. The guidance I received helped me understand that the first step should be converting the PDF content into plain text before sending it to an LLM.
+
+From there, I explored different ways to process the extracted text. AI suggested using a public LLM API initially but also highlighted the advantages of implementing Retrieval-Augmented Generation (RAG) as a longer-term approach.
+
+Throughout the development process, AI acted as a “copilot,” helping me:
+
+* design the project structure
+* understand how to use dependency injection in FastAPI
+* write cleaner, more maintainable Python code
+* solve various implementation details more efficiently
+
+This allowed me to focus on learning and building rather than getting stuck on technical roadblocks.
+
