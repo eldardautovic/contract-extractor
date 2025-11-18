@@ -1,0 +1,11 @@
+services:
+  fastapi:
+    build: .
+    container_name: fastapi_app
+    env_file:
+      - .env
+    volumes:
+      - ./db:/app/db
+    ports:
+      - "8000:8000"
+    restart: always
